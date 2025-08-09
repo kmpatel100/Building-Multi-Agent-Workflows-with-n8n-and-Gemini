@@ -48,6 +48,7 @@ Copy the **Forwarding URL** (for example `https://abc123.ngrok.app`) and use it 
 
 You can also follow this detailed blog and YouTube video:  
 👉 [How to Run n8n with ngrok Using Docker Desktop](https://blog.realiq.ca/p/how-to-run-n8n-with-ngrok-using-docker-desktop-b2b432362b794d5d)
+
 👉 [Watch on YouTube – Self-Host n8n with Ngrok & Docker](https://www.youtube.com/watch?v=LoYBJ5djuOQ) 
 
 ### A) Pull the official image
