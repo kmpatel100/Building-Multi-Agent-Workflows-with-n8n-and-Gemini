@@ -1,0 +1,322 @@
+{
+  "name": "Blog writing multi-agent workflow copy",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here is the topic to write a blog about: {{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "# Overview\nYou are an expert outline writer. Your job is to generate a structured outline for a blog post with section titles and key points."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -208,
+        96
+      ],
+      "id": "6a549d39-f2c3-44a3-bbfb-93be386ded57",
+      "name": "Outline Writer"
+    },
+    {
+      "parameters": {
+        "content": "# Prompt Chaining in Multi-Agent Workflows  \n\n✅ **Reduces Complexity** - Each agent focuses on a single, well-defined task  \n\n✅ **Improves Accuracy** - Mistakes are easier to catch and fix at each stage  \n\n✅ **Increases Flexibility** - Swap or add agents without rebuilding the whole workflow  \n\n✅ **Enhances Specialization** - Agents become experts in specific tasks, boosting reliability  \n\n✅ **Simplifies Debugging** - Fix only the weak link instead of redoing the entire process  \n\n✅ **Boosts Scalability & Reusability** - Structured, step-by-step flows can be adapted to many use cases  \n",
+        "height": 260,
+        "width": 812,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        -304
+      ],
+      "typeVersion": 1,
+      "id": "0fe04df9-55f9-41c3-bea4-f9515d485792",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here if the revised outline: {{ $json.output }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are an expert blog writer. Generate a detailed blog post using the outline with well-structured paragraphs and engaging content. Provide output in markdown format. document structure should follow this guideline.\n\n1. **Title + Optional Subtitle**\n2. **Author & Date**\n3. **Intro**  \n   - Briefly define the topic  \n   - Explain its importance  \n   - Mention what the post will cover  \n4. **Table of Contents** (main sections only)\n5. **Sections**  \n   - **Definition/Overview**: Clear explanation of the concept  \n   - **Practical Advice/Guidelines**: Rules of thumb, tables, or bullet points  \n   - **Comparison/Alternative**: Pros and cons of related options  \n   - **Step-by-Step Guide**: Numbered instructions or code examples  \n6. **Final Thoughts**  \n   - Summary and personal recommendation  \n7. **Call to Action** (subscribe, comment, etc.)\n\n**Formatting Rules**:  \n- Use markdown headings  \n- Keep language simple and clear  \n- Use bullet lists or tables for clarity  \n- Add code blocks where relevant\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        592,
+        96
+      ],
+      "id": "2924c2f6-1f26-4eea-b0ee-f438718b2ba8",
+      "name": "Blog Writer"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -432,
+        96
+      ],
+      "id": "8288073d-dd7b-4ea6-a6c2-cb8ad2b0914e",
+      "name": "When chat message received",
+      "webhookId": "e161344c-79b0-4900-a20c-0591b2da1a3e"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        320
+      ],
+      "id": "ec03584e-2690-46ab-8e74-90a89800ee64",
+      "name": "2.0 Flash",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YUFFRX5OCzhsFG14",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "test0053@gmail.com",
+        "subject": "={{ $('When chat message received').item.json.chatInput }}",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1440,
+        96
+      ],
+      "id": "07c61b90-11f5-497d-8a0c-50fbfbac930d",
+      "name": "Send a message",
+      "webhookId": "3ae11e0e-0402-4eb1-8264-28faef20f8fe",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZmatBWX8ocfmEH32",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// If using the basic Function node (no require), use this simpler approach\nreturn items.map(item => {\n  const markdown = item.json.output;\n\n  const html = markdown\n    .replace(/^## (.*$)/gim, '<h2>$1</h2>')\n    .replace(/^### (.*$)/gim, '<h3>$1</h3>')\n    .replace(/^# (.*$)/gim, '<h1>$1</h1>')\n    .replace(/\\*\\*(.*?)\\*\\*/gim, '<strong>$1</strong>')\n    .replace(/\\*(.*?)\\*/gim, '<em>$1</em>')\n    .replace(/\\n/g, '<br />')\n    .replace(/\\[(.*?)\\]\\((.*?)\\)/gim, '<a href=\"$2\">$1</a>');\n\n  return {\n    json: {\n      ...item.json,\n      html\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        96
+      ],
+      "id": "ec9922f9-4847-4b62-a467-654c850041a6",
+      "name": "Markdown to html"
+    },
+    {
+      "parameters": {
+        "jsCode": "const htmlBlocks = items\n  .map(item => item.json.html)\n  .join('<hr style=\"margin:40px 0; border:0; border-top:1px solid #ccc;\" />');\n\nlet finalHtml = `\n<!DOCTYPE html>\n<html style=\"margin:0; padding:0;\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <style>\n      html, body {\n        margin: 0;\n        padding: 0;\n        font-family: Arial, sans-serif;\n        background-color: #ffffff;\n        color: #333333;\n        line-height: 1.6;\n      }\n      .wrapper {\n        max-width: 640px;\n        margin: 0 auto;\n        padding: 20px;\n      }\n      h1 {\n        font-size: 28px;\n        color: #111111;\n        margin-bottom: 30px;\n      }\n      h2 {\n        font-size: 20px;\n        color: #0056b3;\n        margin-top: 30px;\n        margin-bottom: 10px;\n      }\n      a {\n        color: #007acc;\n        text-decoration: none;\n      }\n      a:hover {\n        text-decoration: underline;\n      }\n      hr {\n        border: none;\n        border-top: 1px solid #ccc;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"wrapper\">\n      ${htmlBlocks}\n    </div>\n  </body>\n</html>\n`;\n\n// Remove the exact unwanted paragraph and any leading newlines\nfinalHtml = finalHtml\n  .replace(/<p style=\"white-space:pre-line\">\\s*<\\/p>/g, '')\n  .replace(/^\\s+/, '');\n\nreturn [{ json: { html: finalHtml } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        96
+      ],
+      "id": "bb9014a7-df33-4729-87f7-e12ca188d989",
+      "name": "additional formatting for email"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        288,
+        320
+      ],
+      "id": "06b7ead8-1041-4e60-a191-aca3f08da53e",
+      "name": "2.5 Flash",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RSJXDFleY1qemzq9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        688,
+        320
+      ],
+      "id": "665e8362-0a05-45d8-9c2f-fd0007689431",
+      "name": "2.5 Pro",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RSJXDFleY1qemzq9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here is the outline: \n\n{{ $json.output }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are an expert blog evaluator. Revise this outline and ensure it covers the following key criteria: \n(1) Engaging Introduction \n(2) Clear Section Breakdown\n(3) Logical Flow\n(4) Conclusion with Key Takeaways\n\n## Output\nOnly output the revised outline."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        192,
+        96
+      ],
+      "id": "dcfc978d-efa8-49a6-8395-983c1b475afb",
+      "name": "Blog evaluator"
+    },
+    {
+      "parameters": {
+        "content": "## Changes you have to make\n\n- change API keys in model block (Gemini 2.0 Flash, 2.5 Flash, 2.5 pro)\n- set up Oauth and connect Gmail with credentials",
+        "height": 144,
+        "width": 592
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -192
+      ],
+      "id": "d1834997-a927-4f74-bfd3-de0825cb43f3",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Outline Writer": {
+      "main": [
+        [
+          {
+            "node": "Blog evaluator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blog Writer": {
+      "main": [
+        [
+          {
+            "node": "Markdown to html",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Outline Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2.0 Flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Outline Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown to html": {
+      "main": [
+        [
+          {
+            "node": "additional formatting for email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "additional formatting for email": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2.5 Flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Blog evaluator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2.5 Pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Blog Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blog evaluator": {
+      "main": [
+        [
+          {
+            "node": "Blog Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1b2f2b43-ffdc-4a54-8ce6-ad93aa33b754",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0d3dfb5c638333dde14d89e767f81eabffc1e7101d7d4598ac5ffb28d962d678"
+  },
+  "id": "MQNzsp7J1GQrk8qr",
+  "tags": []
+}
