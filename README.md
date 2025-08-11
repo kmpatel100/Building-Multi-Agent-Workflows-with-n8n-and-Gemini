@@ -2,7 +2,7 @@
 
 💡 Hands-on resources for the Google Developer Club session on building intelligent multi-agent workflows using n8n and Gemini (Google AI). Includes sample workflows, API integrations, and setup guides.
 
-[alt text](https://github.com/kmpatel100/Building-Multi-Agent-Workflows-with-n8n-and-Gemini/blob/main/Resources/n8n_workflow.gif)
+![](https://github.com/kmpatel100/Building-Multi-Agent-Workflows-with-n8n-and-Gemini/blob/main/Resources/n8n_workflow.gif)
 ---
 
 ## What You Will Build
